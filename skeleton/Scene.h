@@ -1,37 +1,41 @@
-#pragma once
+ï»¿#pragma once
 
 #include <string>
 #include "PxPhysicsAPI.h"
+#include "RenderUtils.hpp"
+#include  <vector>
 
-// Clase base para las distintas escenas de la aplicación.
-// Provee la interfaz mínima que debe implementar cualquier escena:
-// inicialización, limpieza, actualización por frame y manejo de teclado.
+// Clase base para las distintas escenas de la aplicaciÃ³n.
+// Provee la interfaz mÃ­nima que debe implementar cualquier escena:
+// inicializaciÃ³n, limpieza, actualizaciÃ³n por frame y manejo de teclado.
 class Scene {
 public:
     // Construye la escena con un nombre identificador.
     explicit Scene(std::string name) : m_name(std::move(name)) {}
     virtual ~Scene() = default;
 
-    // Inicializa recursos de la escena (físicos, gráficos, datos, ...).
+    // Inicializa recursos de la escena (fÃ­sicos, grÃ¡ficos, datos, ...).
     virtual void init() = 0;
 
     // Libera los recursos asignados en init().
-    virtual void cleanup() = 0;
+    virtual void cleanup();
 
-    // Actualiza la lógica de la escena.
-    // dt: tiempo en segundos transcurrido desde la última actualización.
+    // Actualiza la lÃ³gica de la escena.
+    // dt: tiempo en segundos transcurrido desde la Ãºltima actualizaciÃ³n.
     virtual void update(double dt) = 0;
 
-    // Manejo de pulsación de tecla.
-    // Se recibe la tecla pulsada y la transformada de la cámara para
-    // permitir respuestas dependientes de la orientación/posición de la cámara.
-    // Método opcional que puede ser sobrescrito por escenas que lo necesiten.
+    // Manejo de pulsaciÃ³n de tecla.
+    // Se recibe la tecla pulsada y la transformada de la cÃ¡mara para
+    // permitir respuestas dependientes de la orientaciÃ³n/posiciÃ³n de la cÃ¡mara.
+    // MÃ©todo opcional que puede ser sobrescrito por escenas que lo necesiten.
     virtual void keyPress(unsigned char key, const physx::PxTransform& cameraTransform) {}
 
     // Devuelve el nombre identificador de la escena.
     [[nodiscard]] const std::string& getName() const { return m_name; }
 
 protected:
-    // Nombre de la escena (útil para identificarla en menús o logs).
+    // Nombre de la escena (Ãºtil para identificarla en menÃºs o logs).
     std::string m_name;
+	std::vector<RenderItem*> m_renderItems; // Lista de RenderItems asociados a la escena
+	std::vector<physx::PxTransform> m_transforms; // Lista de actores fÃ­sicos asociados a la escena
 };

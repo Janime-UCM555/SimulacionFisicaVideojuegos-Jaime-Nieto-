@@ -1,4 +1,4 @@
-#include "SceneManager.h"
+﻿#include "SceneManager.h"
 #include <iostream>
 
 // Solicita el cambio de escena. Si el nombre no está registrado, se escribe
@@ -47,13 +47,23 @@ void SceneManager::update(double dt) {
 // permite centralizar atajos globales si se desea en el futuro.
 void SceneManager::keyPress(unsigned char key, const physx::PxTransform& cameraTransform) {
     // Teclas globales de navegación entre prácticas
-    if (key == 'V') {
-        changeScene("EscenaVacia");
-        return; // Consumimos el evento para que no interfiera con la escena
-    }
-
-    // Si no es una tecla de navegación global, se la pasamos a la escena activa
-    if (m_currentScene != nullptr) {
-        m_currentScene->keyPress(key, cameraTransform);
-    }
+    switch (key) {
+	case '0': changeScene("Escena0"); return;
+	case '1': changeScene("Escena1"); return;
+	case '2': changeScene("Escena2"); return;
+	case '3': changeScene("Escena3"); return;
+	case '4': changeScene("Escena4"); return;
+	case '5': changeScene("Escena5"); return;
+	case '6': changeScene("Escena6"); return;
+	case '7': changeScene("Escena7"); return;
+	case '8': changeScene("Escena8"); return;
+	case '9': changeScene("Escena9"); return;
+    case 'V': changeScene("EscenaVacia"); return; // Consumimos el evento para que no interfiera con la escena
+    default:
+        // Si no es una tecla de navegación global, se la pasamos a la escena activa
+        if (m_currentScene != nullptr) {
+            m_currentScene->keyPress(key, cameraTransform);
+        }
+        break;
+    }    
 }

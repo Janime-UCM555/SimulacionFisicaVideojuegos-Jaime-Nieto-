@@ -13,6 +13,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Vector3D.cpp" />
+    <ClCompile Include="Scene0.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core.hpp" />
@@ -28,6 +29,7 @@
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="EmptyScene.h" />
     <ClInclude Include="Vector3D.h" />
+    <ClInclude Include="Scene0.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Render">
