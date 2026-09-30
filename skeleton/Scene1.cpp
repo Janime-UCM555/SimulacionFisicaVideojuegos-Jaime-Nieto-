@@ -6,7 +6,8 @@
 void Scene1::init() {
     v_particles.push_back(new Particle(
         Vector3(0, 20, 0),    // posición inicial
-        Vector3(0, -9.8, 0)    // velocidad constante
+        Vector3(0, 5, 0),    // velocidad constante
+		Vector3D(0, 9.8, 0)    // aceleración
     ));
 }
 
