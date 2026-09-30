@@ -1,4 +1,6 @@
-#include <vector>
+﻿#include <vector>
+#include <cmath>
+#include <algorithm>
 
 #include "PxPhysicsAPI.h"
 
@@ -9,13 +11,14 @@
 using namespace physx;
 
 extern void initPhysics(bool interactive);
-extern void stepPhysics(bool interactive, double t);	
+extern void stepPhysics(bool interactive, double t);
 extern void cleanupPhysics(bool interactive);
 extern void keyPress(unsigned char key, const PxTransform& camera);
 extern PxPhysics* gPhysics;
 extern PxMaterial* gMaterial;
 
 std::vector<const RenderItem*> gRenderItems;
+std::vector<const RenderItem*> gTranslucentRenderItems;
 
 double PCFreq = 0.0;
 __int64 CounterStart = 0;
@@ -45,99 +48,156 @@ double GetCounter()
 
 namespace
 {
-	Camera*	sCamera;
+	Camera* sCamera;
 
-void motionCallback(int x, int y)
-{
-	sCamera->handleMotion(x, y);
-}
+	void motionCallback(int x, int y)
+	{
+		sCamera->handleMotion(x, y);
+	}
 
-void keyboardCallback(unsigned char key, int x, int y)
-{
-	if(key==27)
-		exit(0);
+	void keyboardCallback(unsigned char key, int x, int y)
+	{
+		if (key == 27)
+			exit(0);
 
-	if(!sCamera->handleKey(key, x, y))
-		keyPress(key, sCamera->getTransform());
-}
+		if (!sCamera->handleKey(key, x, y))
+			keyPress(key, sCamera->getTransform());
+	}
 
-void mouseCallback(int button, int state, int x, int y)
-{
-	sCamera->handleMouse(button, state, x, y);
-}
+	void mouseCallback(int button, int state, int x, int y)
+	{
+		sCamera->handleMouse(button, state, x, y);
+	}
 
-void idleCallback()
-{
-	glutPostRedisplay();
-}
+	void idleCallback()
+	{
+		glutPostRedisplay();
+	}
 
-float stepTime = 0.0f;
-//#define FIXED_STEP
+	float stepTime = 0.0f;
+	//#define FIXED_STEP
 
-void renderCallback()
-{
-	double t = GetCounter();
+	PxVec3 GetItemPosition(const RenderItem* item)
+	{
+		if (item->transform)
+			return item->transform->p;
+		else if (item->actor)
+			return item->actor->getGlobalPose().p;
+		else
+			return PxVec3(0.0f);
+	}
+
+
+	void renderCallback()
+	{
+		double t = GetCounter();
 #ifdef FIXED_STEP
-	if (t < (1.0f / 30.0f))
-	{
-		fprintf(stderr, "Time: %f\n", stepTime);
-		stepTime += t;
-	}
-	else
-		stepTime = 1.0f / 30.0f;
+		if (t < (1.0f / 30.0f))
+		{
+			fprintf(stderr, "Time: %f\n", stepTime);
+			stepTime += t;
+		}
+		else
+			stepTime = 1.0f / 30.0f;
 
-	if (stepTime >= (1.0f / 30.0f))
-	{
-		stepPhysics(true, stepTime);
-		stepTime = 0.0f;
-	}
+		if (stepTime >= (1.0f / 30.0f))
+		{
+			stepPhysics(true, stepTime);
+			stepTime = 0.0f;
+		}
 #else
-	stepPhysics(true, t);
+		stepPhysics(true, t);
 #endif
 
-	startRender(sCamera->getEye(), sCamera->getDir());
+		startRender(sCamera->getEye(), sCamera->getDir());
 
-	//fprintf(stderr, "Num Render Items: %d\n", static_cast<int>(gRenderItems.size()));
-	for (auto it = gRenderItems.begin(); it != gRenderItems.end(); ++it)
-	{
-		const RenderItem* obj = (*it);
-		auto objTransform = obj->transform;
-		if (!objTransform)
+		//fprintf(stderr, "Num Render Items: %d\n", static_cast<int>(gRenderItems.size()));
+		for (auto it = gRenderItems.begin(); it != gRenderItems.end(); ++it)
 		{
-			auto actor = obj->actor;
-			if (actor)
+			const RenderItem* obj = (*it);
+			auto objTransform = obj->transform;
+			if (!objTransform)
 			{
-				renderShape(*obj->shape, actor->getGlobalPose(), obj->color);
-				continue;
+				auto actor = obj->actor;
+				if (actor)
+				{
+					renderShape(*obj->shape, actor->getGlobalPose(), obj->color);
+					continue;
+				}
 			}
+			renderShape(*obj->shape, objTransform ? *objTransform : physx::PxTransform(PxIdentity), obj->color);
 		}
-		renderShape(*obj->shape, objTransform ? *objTransform : physx::PxTransform(PxIdentity), obj->color);
+		if(!gTranslucentRenderItems.empty())
+		{
+			glEnable(GL_BLEND);
+			glDepthMask(GL_FALSE);
+			static std::vector<float> distCam;
+			distCam.resize(gTranslucentRenderItems.size());
+
+			const PxVec3& camPos = sCamera->getEye();
+			for (size_t i = 0; i < gTranslucentRenderItems.size(); ++i) {
+				distCam[i] = (GetItemPosition(gTranslucentRenderItems[i])- camPos).magnitudeSquared();
+			}
+
+			for (size_t i = 1; i < gTranslucentRenderItems.size(); ++i)
+			{
+				float d = distCam[i];
+				const RenderItem* item = gTranslucentRenderItems[i];
+				size_t j = i;
+				while (j > 0 && distCam[j - 1] < d) // orden descendente: mas lejos primero
+				{
+					distCam[j] = distCam[j - 1];
+					gTranslucentRenderItems[j] = gTranslucentRenderItems[j - 1];
+					--j;
+				}
+				distCam[j] = d;
+				gTranslucentRenderItems[j] = item;
+			}
+
+			for (auto it = gTranslucentRenderItems.begin(); it != gTranslucentRenderItems.end(); ++it)
+			{
+				const RenderItem* obj = (*it);
+				auto objTransform = obj->transform;
+				if (!objTransform)
+				{
+					auto actor = obj->actor;
+					if (actor)
+					{
+						renderShape(*obj->shape, actor->getGlobalPose(), obj->color);
+						continue;
+					}
+				}
+				renderShape(*obj->shape, objTransform ? *objTransform : physx::PxTransform(PxIdentity), obj->color);
+			}
+			glDepthMask(GL_TRUE);
+			glDisable(GL_BLEND);
+		}
+		
+
+		//PxScene* scene;
+		//PxGetPhysics().getScenes(&scene, 1);
+		//PxU32 nbActors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
+		//if (nbActors)
+		//{
+		//	std::vector<PxRigidActor*> actors(nbActors);
+		//	scene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC, reinterpret_cast<PxActor**>(&actors[0]), nbActors);
+		//	renderActors(&actors[0], static_cast<PxU32>(actors.size()), true, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+		//}
+
+		finishRender();
 	}
 
-	//PxScene* scene;
-	//PxGetPhysics().getScenes(&scene, 1);
-	//PxU32 nbActors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
-	//if (nbActors)
-	//{
-	//	std::vector<PxRigidActor*> actors(nbActors);
-	//	scene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC, reinterpret_cast<PxActor**>(&actors[0]), nbActors);
-	//	renderActors(&actors[0], static_cast<PxU32>(actors.size()), true, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-	//}
-
-	finishRender();
-}
-
-void exitCallback(void)
-{
-	delete sCamera;
-	cleanupPhysics(true);
-}
+	void exitCallback(void)
+	{
+		delete sCamera;
+		cleanupPhysics(true);
+	}
 }
 
 void renderLoop()
 {
 	StartCounter();
-	sCamera = new Camera(PxVec3(50.0f, 50.0f, 50.0f), PxVec3(-0.6f,-0.2f,-0.7f));
+	sCamera = new Camera(PxVec3(50.0f, 50.0f, 50.0f), PxVec3(-0.6f, -0.2f, -0.7f));
 
 	setupDefaultWindow("Simulacion Fisica Videojuegos");
 	setupDefaultRenderState();
@@ -147,7 +207,7 @@ void renderLoop()
 	glutKeyboardFunc(keyboardCallback);
 	glutMouseFunc(mouseCallback);
 	glutMotionFunc(motionCallback);
-	motionCallback(0,0);
+	motionCallback(0, 0);
 
 	atexit(exitCallback);
 
@@ -155,15 +215,30 @@ void renderLoop()
 	glutMainLoop();
 }
 
+bool approximately(float a, float b, float epsilon = 0.00001f) {
+	// Check absolute difference or relative difference for large numbers
+	return std::fabs(a - b) <= (std::max)(std::fabs(a), std::fabs(b)) * epsilon;
+}
+
 void RegisterRenderItem(const RenderItem* _item)
 {
-	gRenderItems.push_back(_item);
+	if (approximately(_item->color.w, 1.0f))
+		gRenderItems.push_back(_item);
+	else {
+		gTranslucentRenderItems.push_back(_item);
+	}
 }
 
 void DeregisterRenderItem(const RenderItem* _item)
 {
-	auto it = find(gRenderItems.begin(), gRenderItems.end(), _item);
-	gRenderItems.erase(it);
+	if (approximately(_item->color.w, 1.0f)) {
+		auto it = find(gRenderItems.begin(), gRenderItems.end(), _item);
+		gRenderItems.erase(it);
+	}
+	else {
+		auto it = find(gTranslucentRenderItems.begin(), gTranslucentRenderItems.end(), _item);
+		gTranslucentRenderItems.erase(it);
+	}
 }
 
 double GetLastTime()

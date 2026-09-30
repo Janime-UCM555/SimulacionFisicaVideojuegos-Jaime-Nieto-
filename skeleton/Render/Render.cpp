@@ -264,9 +264,9 @@ void setupDefaultRenderState()
 	glClearColor(0.3f, 0.4f, 0.5f, 1.0);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_COLOR_MATERIAL);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-	//glEnable(GL_BLEND);
+	glDisable(GL_BLEND);
 
 	// Setup lighting
 	glEnable(GL_LIGHTING);
@@ -316,9 +316,9 @@ void renderShape(const PxShape& shape, const PxTransform& transform, const PxVec
 	PxMat44 mtx(transform);
 	glMultMatrixf(reinterpret_cast<const float*>(&mtx));
 	assert(glGetError() == GL_NO_ERROR);
-	glColor4f(color.x, color.y, color.z, 1.0f);
+	glColor4f(color.x, color.y, color.z, color.w);
 	assert(glGetError() == GL_NO_ERROR);
-	renderGeometry(h, color.w < 0.999f);
+	renderGeometry(h, color.w < 0.1f);
 	assert(glGetError() == GL_NO_ERROR);
 	glPopMatrix();
 	assert(glGetError() == GL_NO_ERROR);
@@ -351,11 +351,11 @@ void renderActors(PxRigidActor** actors, const PxU32 numActors, bool shadows, co
 			if(sleeping)
 			{
 				PxVec4 darkColor = color * 0.25f;
-				glColor4f(darkColor.x, darkColor.y, darkColor.z, 1.0f);
+				glColor4f(darkColor.x, darkColor.y, darkColor.z, darkColor.w);
 			}
 			else
-				glColor4f(color.x, color.y, color.z, 1.0f);
-			renderGeometry(h, color.w < 0.999f);
+				glColor4f(color.x, color.y, color.z, color.w);
+			renderGeometry(h, color.w < 0.1f);
 			glPopMatrix();
 
 			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );

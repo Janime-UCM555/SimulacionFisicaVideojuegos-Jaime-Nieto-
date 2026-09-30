@@ -3,6 +3,7 @@
 #include <string>
 #include "PxPhysicsAPI.h"
 #include "RenderUtils.hpp"
+#include "Particle.h"
 #include  <vector>
 
 // Clase base para las distintas escenas de la aplicación.
@@ -38,4 +39,5 @@ protected:
     std::string m_name;
 	std::vector<RenderItem*> m_renderItems; // Lista de RenderItems asociados a la escena
 	std::vector<physx::PxTransform> m_transforms; // Lista de actores físicos asociados a la escena
+	std::vector<Particle*> v_particles; // Lista de actores físicos asociados a la escena
 };
