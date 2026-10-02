@@ -131,6 +131,8 @@ namespace
 		{
 			glEnable(GL_BLEND);
 			glDepthMask(GL_FALSE);
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
 			static std::vector<float> distCam;
 			distCam.resize(gTranslucentRenderItems.size());
 
@@ -171,6 +173,7 @@ namespace
 			}
 			glDepthMask(GL_TRUE);
 			glDisable(GL_BLEND);
+			glDisable(GL_CULL_FACE);
 		}
 		
 
