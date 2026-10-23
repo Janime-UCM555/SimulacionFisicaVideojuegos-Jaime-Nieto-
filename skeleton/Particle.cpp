@@ -2,9 +2,14 @@
 #include <cmath>
 #include <algorithm>
 
-Particle::Particle(Vector3D pos, Vector3D vel, Vector3D acc, float d, Vector4 color, physx::PxSphereGeometry shape) : vel(vel), acc(acc), damping(d), renderItem(nullptr)
+Particle::Particle(Vector3D pos, Vector3D vel, Vector3D acc, float m, float d, Vector4 color, physx::PxSphereGeometry shape) 
+	: 
+	mass(m), 
+	vel(vel),
+	acc(acc),
+	damping(std::clamp(d, 0.0f, 1.0f)),
+	renderItem(nullptr)
 {
-	std::clamp(damping, 0.0f, 1.0f);
 	physx::PxShape* s = CreateShape(shape);
 	transform = physx::PxTransform(pos.x, pos.y, pos.z);
 	renderItem = new RenderItem(s, &transform, color);

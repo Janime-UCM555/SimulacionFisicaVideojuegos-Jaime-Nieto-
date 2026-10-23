@@ -6,5 +6,5 @@ public:
 	Scene1(std::string name) : Scene(std::move(name)) {}
 	void init() override;
 	void update(double dt) override;
+	void keyPress(unsigned char key, const physx::PxTransform& cameraTransform) override;
 };
-

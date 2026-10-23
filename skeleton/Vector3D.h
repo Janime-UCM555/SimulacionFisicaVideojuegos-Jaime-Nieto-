@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <PxPhysicsAPI.h>
+#include <iostream>
 
 /// <summary>
 /// Representa un vector tridimensional con operaciones matemáticas básicas
@@ -19,7 +20,7 @@ public:
 	/// <param name="x">Componente X del vector</param>
 	/// <param name="y">Componente Y del vector</param>
 	/// <param name="z">Componente Z del vector</param>
-	Vector3D(float x = 0, float y = 0, float z = 0) noexcept;
+	constexpr Vector3D(float x = 0, float y = 0, float z = 0) noexcept: x(x), y(y), z(z) {};
 
 	/// <summary>
 	/// Construye un vector 3D a partir de un PxVec3 de PhysX
@@ -85,12 +86,26 @@ public:
 	Vector3D operator*(float scalar) const noexcept;
 
 	/// <summary>
+	/// Multiplica el vector por otro vector (producto componente a componente)
+	/// </summary>
+	/// <param name="v">Vector por el que se multiplica</param>
+	/// <returns>Un nuevo vector resultado de la multiplicación componente a componente</returns>
+	Vector3D operator*(const Vector3D& v) const noexcept;
+
+	/// <summary>
 	/// Divide el vector por un escalar
 	/// </summary>
 	/// <param name="scalar">Valor escalar por el que se divide</param>
 	/// <returns>Un nuevo vector escalado</returns>
 	/// <exception cref="std::runtime_error">Si el escalar es cero</exception>
 	Vector3D operator/(float scalar) const;
+
+	/// <summary>
+	/// Divide el vector por otro vector (división componente a componente)
+	/// </summary>
+	/// <param name="v">Vector por el que se divide</param>
+	/// <returns>Un nuevo vector resultado de la división componente a componente</returns>
+	Vector3D operator/(const Vector3D& v) const noexcept;
 
 	/// <summary>
 	/// Suma otro vector a este y actualiza sus componentes
@@ -126,5 +141,13 @@ public:
 	/// </summary>
 	/// <returns>Un PxVec3 equivalente a este vector</returns>
 	operator physx::PxVec3() const;
+
+	friend std::ostream& operator<<(std::ostream& out, const Vector3D& v) {
+		return out << '{' << v.x << ", " << v.y << ", " << v.z << " }";
+	}
 #pragma endregion
 };
+
+const Vector3D ZERO_VECTOR = Vector3D(0.0f, 0.0f, 0.0f);
+const Vector3D LEFT_VECTOR = Vector3D(-1.0f, 0.0f, 0.0f);
+const Vector3D FRONT_VECTOR = Vector3D(0.0f, 0.0f, 1.0f);

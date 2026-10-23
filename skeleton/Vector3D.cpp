@@ -1,7 +1,6 @@
 ﻿#include "Vector3D.h"
 #include <stdexcept>
 #pragma region Constructores
-Vector3D::Vector3D(float x, float y, float z) noexcept : x(x), y(y), z(z) {}
 
 Vector3D::Vector3D(const physx::PxVec3& vec) noexcept
 {
@@ -65,6 +64,16 @@ Vector3D Vector3D::operator*(float scalar) const noexcept
 	return Vector3D(x * scalar, y * scalar, z * scalar);
 }
 
+Vector3D Vector3D::operator*(const Vector3D& v) const noexcept
+{
+	return Vector3D(x * v.x, y * v.y, z * v.z);
+}
+
+Vector3D Vector3D::operator/(const Vector3D& v) const noexcept
+{
+	return Vector3D(x / v.x, y / v.y, z / v.z);
+}
+
 Vector3D Vector3D::operator/(float scalar) const
 {
 	if (scalar == 0)
@@ -114,4 +123,5 @@ Vector3D::operator physx::PxVec3() const
 {
 	return physx::PxVec3(x, y, z);
 }
+
 #pragma endregion
