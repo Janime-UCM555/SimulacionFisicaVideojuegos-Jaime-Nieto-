@@ -19,6 +19,8 @@ protected:
 	physx::PxTransform transform;
 
 private:
+	float lifeTime;
+	float age;
 	float damping;
 	RenderItem* renderItem;
 };

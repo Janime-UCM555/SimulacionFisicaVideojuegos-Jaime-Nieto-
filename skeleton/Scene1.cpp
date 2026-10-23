@@ -61,7 +61,7 @@ void Scene1::keyPress(unsigned char key, const physx::PxTransform& cameraTransfo
 			cameraTransform.p + cameraTransform.q.rotate(Vector3(0, 0, -1)) * 10.0f,    // posición inicial
 			cameraTransform.q.rotate(Vector3(0, 0, -1)) * 8.0f,    // velocidad
 			Vector3D(0, 0, 0),    // aceleración
-			156.0f    // masa
+			0.156f    // masa
 			, 0.99f    // damping
 			, Vector4(0.0f, 0.0f, 0.0f, 1.0f)
 			, physx::PxSphereGeometry(5.73f)
