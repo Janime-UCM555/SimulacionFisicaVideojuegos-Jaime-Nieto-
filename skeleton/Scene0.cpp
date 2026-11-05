@@ -31,8 +31,20 @@ void Scene0::init()
     m_renderItems.push_back(new RenderItem(shape, &m_transforms[3], Vector4(1.0f, 0.0f, 0.0f, 1.0f)));
     m_renderItems.push_back(new RenderItem(shape, &m_transforms[4], Vector4(0.0f, 1.0f, 0.0f, 1.0f)));
     m_renderItems.push_back(new RenderItem(shape, &m_transforms[5], Vector4(0.0f, 0.0f, 1.0f, 1.0f)));
+
    
    
 
    
+}
+
+void Scene0::cleanup() {
+	// Liberar recursos asociados a los RenderItems
+	for (auto& item : m_renderItems) {
+		if (item) {
+			item->release(); // Deregistra y destruye el item
+		}
+	}
+	m_renderItems.clear();
+	m_transforms.clear();
 }

@@ -1,6 +1,16 @@
 ﻿#include "Proyectile.h"
 #include <stdexcept>
 #include <iostream>
+
+Proyectile::Proyectile(ParticleDesc desc)
+	: Particle(desc)
+	, simGravity(GRAVITY)
+	, realMass(desc.mass_)
+	, realVelocity(desc.vel_)
+{
+	Particle::acc += simGravity;
+}
+
 Proyectile::Proyectile(Vector3D pos, Vector3D vel, Vector3D acc, float mass, float damping, Vector4 color, physx::PxSphereGeometry shape)
 	: Particle(pos, vel, acc, mass, damping, color, shape)
 	, simGravity(GRAVITY)
