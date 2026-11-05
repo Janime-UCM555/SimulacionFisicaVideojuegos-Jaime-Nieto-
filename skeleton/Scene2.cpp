@@ -42,6 +42,7 @@ void Scene2::init() {
 		.position({ 0, 3, -30 })
 		.velocity({ 0, 0.2f, 0 })
 		.lifeTime(8.0)
+		.mass(0.05f)
 		.damping(0.9f)
 		.color({ 0.85f, 0.85f, 0.9f, 0.15f })
 		.shape(physx::PxSphereGeometry(0.6f)),
