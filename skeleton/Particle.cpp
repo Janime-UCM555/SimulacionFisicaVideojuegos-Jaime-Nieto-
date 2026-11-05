@@ -79,8 +79,6 @@ void Particle::integrate(double t)
 	vel += (acc + force * invMass) * dt;
 	vel *= std::powf(damping, dt);
 	transform.p = transform.p + vel * dt;
-	acc = Vector3D(0, 0, 0); // Resetear aceleración para el siguiente paso
-
 }
 
 void Particle::removeForce(GeneradorFuerzas* f) {

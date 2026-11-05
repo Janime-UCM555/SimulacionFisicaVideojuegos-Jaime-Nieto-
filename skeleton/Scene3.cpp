@@ -29,7 +29,7 @@ void Scene3::init() {
 	gravedad = new GravityForce(Vector3D(0.0f, -10.0f, 0.0f));
 	gravedadLigera = new GravityForce(Vector3D(0.0f, -2.0f, 0.0f));   // 2ª instancia: "flotabilidad"
 	viento = new WindForce(Vector3D(20, 0, 0), Vector3D(40, 0, 0), Vector3D(20, 45, 20), 0.5f, 0.0f);
-	torbellino = new WhirlwindForce(Vector3D(70, 0, 0), Vector3D(15, 40, 15), 0.3f, 1.0f);
+	torbellino = new WhirlwindForce(Vector3D(70, 0, 0), Vector3D(15, 40, 15), 0.6f, 1.0f);
 	explosion = new ExplosionForce(Vector3D(90, 10, 0), 600.0f, 40.0f, 1.0f);   // ve = 0: radio fijo
 	v_objects.push_back(gravedad);
 	v_objects.push_back(gravedadLigera);
@@ -37,7 +37,7 @@ void Scene3::init() {
 	v_objects.push_back(torbellino);
 	v_objects.push_back(explosion);
 
-	const Vector3D v0(0, 20, 0);
+	const Vector3D v0(0, 15, 0);
 
 	// --- Actividad 1: gravedad como aceleración vs. como fuerza vs. gravedad ligera ---
 	// A) CONTROL: aceleración constante, sin generadores de fuerza
@@ -65,7 +65,7 @@ void Scene3::init() {
 
 	// --- Actividad 3: torbellino ---
 	auto* tor = crearEmisor(Vector3D(70, 0, 0), Vector3D(0, 5, 0), 1.0f, 0.3f, CIAN,
-		Vector3D(3, 0, 3), Vector3D(2, 1, 2));
+		Vector3D(8, 0, 8), Vector3D(2, 1, 2));
 	tor->addForce(torbellino);
 	v_objects.push_back(tor);
 
