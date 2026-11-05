@@ -338,7 +338,7 @@ public:
 	/// <param name="dt"> Tiempo transcurrido desde la última actualización, en segundos </param>
 	void update(double dt) override {
 		GeneradorFuerzas::update(dt);
-		if (active && elapsedTime > 5.0 * tau) active = false;   // a partir de ~4 tau ya se ha desvanecido
+		if (active && elapsedTime > 5.0 * tau) active = false;   // a partir de ~5 tau ya se ha desvanecido
 	}
 #pragma endregion
 };
