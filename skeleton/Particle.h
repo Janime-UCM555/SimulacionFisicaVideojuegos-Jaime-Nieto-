@@ -2,6 +2,12 @@
 #include "RenderUtils.hpp"
 #include "UpdatableObj.h"
 #include "Vector3D.h"
+#include <vector>
+
+/// <summary>
+/// Declaración adelantada de la clase GeneradorFuerzas.
+/// </summary>
+class GeneradorFuerzas;
 
 /// <summary>
 /// Vector de gravedad estándar usado por las partículas (apunta hacia -Y).
@@ -133,17 +139,24 @@ public:
 	/// <summary>
 	/// Crea una copia independiente de esta partícula, con su propio estado y
 	/// recursos asociados. Es el mecanismo explícito de duplicación.
+	/// Las copias siempre se crean visibles, aunque la partícula original esté oculta.
 	/// </summary>
 	/// <returns> Puntero a la nueva partícula clonada </returns>
 	Particle* clone() const;
 
 	/// <summary> Obtiene una referencia constante a la posición actual de la partícula como Vector3D. </summary>
 	/// <returns> Referencia a la posición actual </returns>
-	const Vector3D& getPosition() const { return Vector3D(transform.p); }
+	Vector3D getPosition() const { return Vector3D(transform.p); }
 
 	/// <summary> Obtiene una referencia constante a la velocidad actual de la partícula. </summary>
 	/// <returns> Referencia a la velocidad actual </returns>
-	const Vector3D& getVelocity() const { return vel; }
+	Vector3D getVelocity() const { return vel; }
+
+	/// <summary>
+	/// Obtiene la masa del objeto.
+	/// </summary>
+	/// <returns> La masa almacenada en el objeto. </returns>
+	float getMass() const { return mass; }
 
 	/// <summary> Establece la posición de la partícula. </summary>
 	/// <param name="p"> Nueva posición </param>
@@ -183,6 +196,26 @@ public:
 	/// </summary>
 	/// <returns> true si la partícula ha expirado, false en caso contrario </returns>
 	bool isExpired() const { return lifeTime > 0.0 && age >= lifeTime; }
+
+	/// <summary>
+	/// Añade una fuerza a la lista de fuerzasPropias.
+	/// </summary>
+	/// <param name="f"> Puntero a la fuerza que se va a añadir. </param>
+	void addForce(GeneradorFuerzas* f) { fuerzasPropias.push_back(f); }
+
+	/// <summary>
+	/// Elimina una fuerza de la colección si está presente.
+	/// </summary>
+	/// <param name="f"> Puntero a la fuerza que se desea eliminar. </param>
+	void removeForce(GeneradorFuerzas* f);
+
+	/// <summary>
+	/// Asocia un vector de generadores de fuerzas de un sistema de partículas.
+	/// </summary>
+	/// <param name="fuerzas"> Puntero al vector de generadores de fuerzas que tiene el sistema que controla la partícula. nullptr si no hay sistema asociado. </param>
+	void bindForces(std::vector<GeneradorFuerzas*>* fuerzas);
+
+
 #pragma endregion
 
 #pragma region Atributos
@@ -193,8 +226,16 @@ protected:
 	/// <summary> Velocidad actual de la partícula. </summary>
 	Vector3D vel;
 
-	/// <summary> Aceleración aplicada a la partícula. </summary>
+	/// <summary> Aceleración constante aplicada a la partícula. </summary>
 	Vector3D acc;
+
+	/// <summary> Fuerza resultante de las fuerzas aplicadas sobre la partícula. </summary>
+	Vector3D force;
+
+	/// <summary> Lista de fuerzasPropias aplicadas a la partícula. </summary>
+	std::vector<GeneradorFuerzas*> fuerzasPropias;
+
+	std::vector<GeneradorFuerzas*>* fuerzasSistema = nullptr;
 
 	/// <summary> Transform (posición y orientación) usada por PhysX y el render. </summary>
 	physx::PxTransform transform;

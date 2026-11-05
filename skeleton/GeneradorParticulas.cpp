@@ -1,6 +1,6 @@
 ﻿#include "GeneradorParticulas.h"
 GeneradorParticulas::GeneradorParticulas(ParticleDesc d, float r, Vector3D posS, Vector3D velS)
-	: modelo(std::make_unique<Particle>(d))
+	: modelo(std::make_unique<Particle>(d.visible(false)))
 	, rate(r)
 	, posSpread(posS)
 	, velSpread(velS)

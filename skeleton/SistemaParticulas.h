@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "GeneradorParticulas.h"
+#include "GeneradorFuerzas.h"
 
 /// <summary>
 /// Sistema que agrupa y coordina varios generadores de partículas dentro de un
@@ -55,6 +56,12 @@ private:
 	/// Junto con eII delimita el volumen dentro del cual se mantienen las partículas.
 	/// </summary>
 	Vector3D eSD;
+
+	/// <summary>
+	/// Vector de punteros a objetos GeneradorFuerzas, inicialmente vacío.
+	/// Contiene las fuerzasPropias que se aplican a todas las partículas del sistema.
+	/// </summary>
+	std::vector<GeneradorFuerzas*> fuerzas;
 #pragma endregion
 
 #pragma region Constructores y destructor
@@ -124,5 +131,20 @@ public:
 	/// </summary>
 	/// <param name="dt"> Tiempo transcurrido desde la última actualización, en segundos </param>
 	void update(double dt) override;
+
+	/// <summary>
+	/// Añade un generador de fuerzasPropias a la colección de fuerzas.
+	/// </summary>
+	/// <param name="f"> Puntero al generador de fuerzasPropias que se va a añadir. </param>
+	void addForce(GeneradorFuerzas* f) { fuerzas.push_back(f); }
+
+	/// <summary>
+	/// Elimina de la colección todas las apariciones de una fuerza.
+	/// </summary>
+	/// <param name="f"> Puntero a la fuerza que se va a eliminar. </param>
+	void removeForce(GeneradorFuerzas* f) {
+		auto it = std::remove(fuerzas.begin(), fuerzas.end(), f);
+		fuerzas.erase(it, fuerzas.end());
+	}
 #pragma endregion
 };

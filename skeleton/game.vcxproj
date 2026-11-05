@@ -263,6 +263,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="callbacks.cpp" />
+    <ClCompile Include="GeneradorFuerzas.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Proyectile.cpp" />
@@ -273,6 +274,7 @@
     <ClCompile Include="Scene0.cpp" />
     <ClCompile Include="Scene1.cpp" />
     <ClCompile Include="Scene2.cpp" />
+    <ClCompile Include="Scene3.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="GeneradorParticulas.cpp" />
     <ClCompile Include="SistemaParticulas.cpp" />
@@ -282,6 +284,7 @@
     <ClInclude Include="callbacks.hpp" />
     <ClInclude Include="core.hpp" />
     <ClInclude Include="EmptyScene.h" />
+    <ClInclude Include="GeneradorFuerzas.h" />
     <ClInclude Include="GeneradorParticulas.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Proyectile.h" />
@@ -292,6 +295,7 @@
     <ClInclude Include="Scene0.h" />
     <ClInclude Include="Scene1.h" />
     <ClInclude Include="Scene2.h" />
+    <ClInclude Include="Scene3.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SistemaParticulas.h" />
     <ClInclude Include="UpdatableObj.h" />

@@ -20,6 +20,8 @@
     <ClCompile Include="GeneradorParticulas.cpp" />
     <ClCompile Include="Scene2.cpp" />
     <ClCompile Include="SistemaParticulas.cpp" />
+    <ClCompile Include="GeneradorFuerzas.cpp" />
+    <ClCompile Include="Scene3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core.hpp" />
@@ -43,6 +45,8 @@
     <ClInclude Include="Scene2.h" />
     <ClInclude Include="UpdatableObj.h" />
     <ClInclude Include="GeneradorParticulas.h" />
+    <ClInclude Include="GeneradorFuerzas.h" />
+    <ClInclude Include="Scene3.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Render">

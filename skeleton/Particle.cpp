@@ -1,6 +1,7 @@
-﻿#include "Particle.h"
-#include <cmath>
+﻿#include "GeneradorFuerzas.h"
+#include "Particle.h"
 #include <algorithm>
+#include <cmath>
 
 Particle::Particle(const ParticleDesc& d)
 	: mass(d.mass_)
@@ -12,27 +13,18 @@ Particle::Particle(const ParticleDesc& d)
 	, renderItem(nullptr)
 	, desc(d)
 {
+	transform = physx::PxTransform(d.pos_.x, d.pos_.y, d.pos_.z);
+
 	if (d.visible_) {
 		physx::PxShape* s = CreateShape(d.shape_.any());
-		transform = physx::PxTransform(d.pos_.x, d.pos_.y, d.pos_.z);
 		renderItem = new RenderItem(s, &transform, d.color_);
 	}
 }
 
 
-Particle::Particle(Vector3D pos, Vector3D vel, Vector3D acc, float m, float d, Vector4 color, physx::PxSphereGeometry shape) 
-	: 
-	mass(m), 
-	vel(vel),
-	acc(acc),
-	damping(std::clamp(d, 0.0f, 1.0f)),
-	renderItem(nullptr)
-{
-
-	physx::PxShape* s = CreateShape(shape);
-	transform = physx::PxTransform(pos.x, pos.y, pos.z);
-	renderItem = new RenderItem(s, &transform, color);
-}
+Particle::Particle(Vector3D pos, Vector3D vel, Vector3D acc, float m, float d, Vector4 color, physx::PxSphereGeometry shape)
+	: Particle(ParticleDesc().position(pos).velocity(vel).acceleration(acc).mass(m).damping(d).color(color).shape(shape))
+{}
 
 Particle::~Particle()
 {
@@ -46,7 +38,7 @@ Particle::~Particle()
 Particle* Particle::clone() const
 {
 	ParticleDesc d = desc;
-	d.visible(true);
+	d.visible(true); // Forzar visibilidad de la copia, aunque la original esté oculta
 	return new Particle(d);
 }
 
@@ -54,15 +46,50 @@ Particle* Particle::clone() const
 void Particle::update(double dt)
 {
 	if (!renderItem) { return; }
+
 	age += dt;
+
+	force = Vector3D(0, 0, 0);
+
+	for (auto& f : fuerzasPropias)
+	{
+		if (f && f->isActive()) {
+			force += f->getForce(*this);
+		}
+	}
+
+	if (fuerzasSistema)
+	{
+		for (auto& f : *fuerzasSistema)
+		{
+			if (f && f->isActive()) {
+				force += f->getForce(*this);
+			}
+		}
+	}
+
 	integrate(dt);
 }
 
 void Particle::integrate(double t)
 {
+	float dt = static_cast<float>(t);
+	const float invMass = (mass > 0.0f) ? (1.0f / mass) : 0.0f;
 	// Euler semi-implicito
-	vel += acc * static_cast<float>(t);
-	vel *= std::powf(damping, static_cast<float>(t));
-	transform.p = transform.p + vel * static_cast<float>(t);
-	
+	vel += (acc + force * invMass) * dt;
+	vel *= std::powf(damping, dt);
+	transform.p = transform.p + vel * dt;
+	acc = Vector3D(0, 0, 0); // Resetear aceleración para el siguiente paso
+
+}
+
+void Particle::removeForce(GeneradorFuerzas* f) {
+	auto it = std::find(fuerzasPropias.begin(), fuerzasPropias.end(), f);
+	if (it != fuerzasPropias.end()) {
+		fuerzasPropias.erase(it);
+	}
+}
+
+void Particle::bindForces(std::vector<GeneradorFuerzas*>* fuerzas) {
+	fuerzasSistema = fuerzas;
 }

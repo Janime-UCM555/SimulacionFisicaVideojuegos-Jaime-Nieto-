@@ -12,6 +12,7 @@ void SistemaParticulas::addGenerador(std::unique_ptr<GeneradorParticulas> g) {
 }
 
 void SistemaParticulas::addParticula(Particle* p) {
+	p->bindForces(&fuerzas);
 	particulas.push_back(p);
 }
 
@@ -44,6 +45,7 @@ void SistemaParticulas::update(double dt) {
 	for (auto& g : generadores) {
 		auto nuevasParticulas = g->generarParticulas(dt);
 		for (auto* p : nuevasParticulas) {
+			p->bindForces(&fuerzas);
 			particulas.push_back(p);
 		}
 	}
